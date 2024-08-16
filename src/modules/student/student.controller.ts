@@ -1,52 +1,59 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+
 import { StudentService } from "./student.service";
+import httpStatus from "http-status";
+import catchAsync from "../utils/catchAsync";
 
-const createStudent = async (req: Request, res: Response) => {
-  try {
-    const { student: studentData } = req.body;
+const getAllStudent = catchAsync(async (req, res) => {
+  const result = await StudentService.getAllStudentFromDb(req.query);
 
-    const result = await StudentService.createStudentIntoDb(studentData);
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message: "students are retrieve successfully",
+    meta: result.meta,
+    data: result.meta,
+  });
+});
+const getSingleStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
 
-    res.status(200).json({
-      success: true,
-      message: "student is created successfully",
-      data: result,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
+  const result = await StudentService.getSingleStudentFromDb(id);
 
-const getAllStudent = async (req: Request, res: Response) => {
-  try {
-    const result = await StudentService.getAllStudentFromDb();
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message: "student is retrieve successfully",
+    data: result,
+  });
+});
 
-    res.status(200).json({
-      success: true,
-      message: "students is retrieve successfully",
-      data: result,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-const getSingleStudent = async (req: Request, res: Response) => {
-  try {
-    const { studentId } = req.params;
-    const result = await StudentService.getSingleStudentFromDb(studentId);
+const deleteSingleStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await StudentService.deleteSingleStudentFromDb(id);
 
-    res.status(200).json({
-      success: true,
-      message: "student is retrieve successfully",
-      data: result,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message: "student is deleted successfully",
+    data: result,
+  });
+});
+const updateStudent = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { student } = req.body;
+  const result = await StudentService.updateStudentIntoDb(id, student);
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    message: "student is updated successfully",
+    data: result,
+  });
+});
 
 export const StudentController = {
-  createStudent,
   getAllStudent,
   getSingleStudent,
+  deleteSingleStudent,
+  updateStudent,
 };

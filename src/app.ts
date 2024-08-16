@@ -1,20 +1,34 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
-import { StudentRoutes } from "./modules/student/student.route";
+
+import globalError from "./middleware/globalerror";
+import notFound from "./middleware/notFound";
+import cookieParser from "cookie-parser";
+
+import router from "./app/routes";
 
 const app: Application = express();
 
 // parser
 app.use(express.json());
 app.use(express.text());
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 // application routes
-app.use("/api/v1/student", StudentRoutes);
 
-app.get("/", (req: Request, res: Response) => {
+app.use("/api/v1", router);
+
+const test = async (req: Request, res: Response) => {
   const a = 10;
 
-  res.send(a);
-});
+  await Promise.reject();
+  res.send({ a });
+};
+app.get("/", test);
+
+// global error handler
+app.use(globalError);
+app.use(notFound);
 
 export default app;

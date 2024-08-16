@@ -1,10 +1,31 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import express from "express";
 import { StudentController } from "./student.controller";
+import auth from "../../middleware/auth";
+import { USER_ROLE } from "../user/user.constant";
 
-const router = express.Router();
+const routes = express.Router();
 
-router.post("/create-student", StudentController.createStudent);
-router.get("/", StudentController.getAllStudent);
-router.get("/:studentId", StudentController.getSingleStudent);
+routes.get(
+  "/",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.faculty),
+  StudentController.getAllStudent
+);
+routes.get(
+  "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.faculty),
+  StudentController.getSingleStudent
+);
+routes.patch(
+  "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  StudentController.updateStudent
+);
 
-export const StudentRoutes = router;
+routes.delete(
+  "/:id",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  StudentController.deleteSingleStudent
+);
+
+export const StudentRoutes = routes;
